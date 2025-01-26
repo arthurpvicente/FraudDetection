@@ -4,7 +4,7 @@ library(cluster)
 library(factoextra)
 
 # Load the dataset
-data <- read.csv("C:/Users/arthu/Downloads/bank_transactions_data_2.csv")
+data <- read.csv("bank_transactions_data_2.csv")
 
 cat("Summary of the dataset:\n")
 summary(data)
