@@ -6,7 +6,6 @@ library(factoextra)
 # Load the dataset
 data <- read.csv("C:/Users/arthu/Downloads/bank_transactions_data_2.csv")
 
-# Step: 2
 cat("Summary of the dataset:\n")
 summary(data)
 
@@ -41,7 +40,6 @@ numeric_cols <- sapply(data, is.numeric)
 numeric_data <- data |> select(where(is.numeric))
 numeric_scaled <- scale(numeric_data)
 
-# Step 3:
 # Handle missing values
 numeric_cols <- sapply(data, is.numeric)
 categorical_cols <- sapply(data, is.character)
@@ -55,7 +53,6 @@ for (col in names(data)[categorical_cols]) {
   data[[col]] <- ifelse(is.na(data[[col]]), mode_value, data[[col]])
 }
 
-# Step 4:
 # Objective: Detect fraudulent transaction patterns using clustering
 numeric_scaled <- scale(data |> select(where(is.numeric)))
 
@@ -107,7 +104,6 @@ ggplot(data, aes(x = TransactionAmount, y = AccountBalance, color = as.factor(KM
   scale_color_viridis_d() +
   theme_minimal()
 
-# Step 5:
 # Fraud detection logic is based on distance from centroids
 cat("\nTotal Fraudulent Transactions Detected (Using K-Means clustering):", nrow(fraud_points), "\n")
 cat("\nFraudulent Transactions Detected:\n")
