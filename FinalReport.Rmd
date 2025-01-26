@@ -1,0 +1,113 @@
+---
+title: "Fraud Detection Report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(caret)
+library(cluster)
+library(factoextra)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This report details the process and results of detecting potential fraudulent transactions using a bank transactions dataset. The primary methods include exploratory data analysis, data cleaning, and clustering via the K-Means algorithm. Results and insights are presented with visuals and summaries suitable.
+
+# Data Exploration
+
+## Load and Inspect the Data
+
+```{r load-data}
+data <- read.csv("C:/Users/arthu/Downloads/bank_transactions_data_2.csv")
+summary(data)
+```
+
+## Check for Missing Values
+
+```{r missing-values}
+cat("\nMissing values:")
+colSums(is.na(data))
+```
+
+## Visualize Key Variables
+
+### Transaction Amount Distribution
+
+```{r plot-transaction}
+ggplot(data, aes(x = TransactionAmount)) + 
+  geom_histogram(bins = 30, fill = "blue", color = "black") + 
+  labs(title = "Distribution of Transaction Amount")
+```
+
+### Account Balance Distribution
+
+```{r plot-balance}
+ggplot(data, aes(x = AccountBalance)) + 
+  geom_histogram(bins = 30, fill = "green", color = "black") + 
+  labs(title = "Distribution of Account Balance")
+```
+
+# Fraud Detection Using K-Means Clustering
+
+## Normalize the Data
+
+```{r normalize}
+numeric_scaled <- scale(data |> select(where(is.numeric)))
+```
+
+## Perform K-Means Clustering
+
+```{r kmeans-clustering}
+set.seed(42)
+kmeans_result <- kmeans(numeric_scaled, centers = 5, nstart = 25)
+data$KMeans_Cluster <- kmeans_result$cluster
+```
+
+## Identify Fraudulent Transactions
+
+```{r fraud-detection}
+centroids <- kmeans_result$centers
+distances <- apply(numeric_scaled, 1, function(x) min(sqrt(colSums((t(centroids) - x)^2))))
+data$KMeans_Distance <- distances
+
+threshold <- mean(distances) + 3 * sd(distances)
+data$KMeans_Fraud <- distances > threshold
+
+fraud_points <- data |> filter(KMeans_Fraud == TRUE)
+```
+
+## Fraud Summary
+
+```{r fraud-summary}
+fraud_summary <- table(data$KMeans_Fraud)
+cat("Fraud Summary:", fraud_summary)
+```
+
+# Results and Visualization
+
+## Clustering Results
+
+```{r cluster-plot}
+ggplot(data, aes(x = TransactionAmount, y = AccountBalance, color = as.factor(KMeans_Cluster))) +
+  geom_point(alpha = 0.7) +
+  labs(title = "K-Means Clusters", x = "Transaction Amount", y = "Account Balance") +
+  scale_color_viridis_d() +
+  theme_minimal()
+```
+
+## Fraud Detection Visualization
+
+```{r fraud-plot}
+ggplot(data, aes(x = TransactionAmount, y = AccountBalance, color = as.factor(KMeans_Cluster))) +
+  geom_point(alpha = 0.7) +
+  geom_point(data = fraud_points, aes(x = TransactionAmount, y = AccountBalance), color = "red", size = 3) +
+  labs(title = "K-Means Clusters with Fraud Points", x = "Transaction Amount", y = "Account Balance") +
+  scale_color_viridis_d() +
+  theme_minimal()
+```
+
+# Conclusion
+
+This analysis identified a total of `r nrow(fraud_points)` potentially fraudulent transactions using the K-Means clustering algorithm. These outliers were flagged based on their distances from cluster centroids, exceeding the defined threshold.
