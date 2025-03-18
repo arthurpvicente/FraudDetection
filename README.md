@@ -30,6 +30,9 @@ To run the script and detect fraudulent transactions, use the following command 
 # Source the script
 source("path/to/your/script.R")
 ```
+## Result of Possible Frauds
+
+![image](https://github.com/user-attachments/assets/85cbc104-54d8-4fb0-88e1-3e082adda770)
 
 ## Author
 - **LinkedIn:** [Arthur Vicente](https://www.linkedin.com/in/arthurpvicente/)
